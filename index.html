@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title></title>
+    <!-- استيراد الخطوط الفاخرة -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-pink: #fbc2eb;
+            --bg-pink-light: #a6c1ee; /* تداخل خفيف للجمال */
+            --rose-accent: #ff4d6d;
+            --rose-soft: #ff85a2;
+            --text-dark: #4a1c2c;
+            --glass-card: rgba(255, 255, 255, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            /* خلفية وردية متدرجة تدعم جميع الشاشات */
+            background: linear-gradient(135deg, #fbc2eb 0%, #ff9a9e 100%);
+            background-attachment: fixed;
+            color: var(--text-dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- التحميل الفاخر --- */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #fbc2eb;
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.8s ease;
+        }
+        .loader-ring {
+            width: 50px; height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid var(--rose-accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* --- شريط التنقل Portfolio Nav --- */
+        nav {
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 92%;
+            max-width: 1000px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 100px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 25px;
+            z-index: 1000;
+            opacity: 0;
+            transition: 1s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        .nav-brand {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 20px;
+            color: var(--text-dark);
+        }
+        .status-badge {
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--rose-accent);
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--glass-border);
+        }
+        .status-dot {
+            width: 6px; height: 6px;
+            background: var(--rose-accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--rose-accent);
+        }
+
+        /* --- شاشة الدخول الفاخرة --- */
+        #auth-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9000;
+            background: linear-gradient(135deg, #fbc2eb 0%, #ff9a9e 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 1.2s cubic-bezier(0.85, 0, 0.15, 1);
+        }
+        .auth-card {
+            background: rgba(255, 255, 255, 0.4);
+            padding: 40px 25px;
+            border-radius: 40px;
+            border: 1px solid var(--glass-border);
+            text-align: center;
+            width: 88%;
+            max-width: 380px;
+            backdrop-filter: blur(30px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        }
+        .pass-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid var(--glass-border);
+            padding: 18px;
+            border-radius: 20px;
+            color: var(--text-dark);
+            text-align: center;
+            font-size: 18px;
+            margin: 20px 0;
+            outline: none;
+        }
+        .pass-btn {
+            background: var(--rose-accent);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 20px;
+            font-weight: 700;
+            width: 100%;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(255, 77, 109, 0.2);
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            padding-top: 150px;
+            text-align: center;
+            padding-bottom: 20px;
+        }
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(38px, 10vw, 80px);
+            font-weight: 700;
+            color: var(--text-dark);
+            line-height: 1.2;
+        }
+        .hero p {
+            font-size: 16px;
+            color: var(--rose-accent);
+            font-weight: 600;
+            margin-top: 10px;
+            height: 24px;
+        }
+
+        /* --- Bento Grid Responsive --- */
+        .main-grid {
+            max-width: 1100px;
+            margin: 40px auto 100px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 أعمدة في الشاشات الكبيرة */
+            gap: 20px;
+        }
+
+        /* تعديلات الموبايل والتابلت */
+        @media (max-width: 992px) {
+            .main-grid { grid-template-columns: repeat(2, 1fr); } /* عمودين للتابلت */
+        }
+        @media (max-width: 650px) {
+            .main-grid { grid-template-columns: 1fr; } /* عمود واحد للموبايل */
+            .hero { padding-top: 130px; }
+        }
+
+        .portfolio-card {
+            background: var(--glass-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 40px;
+            padding: 40px 25px;
+            text-decoration: none;
+            color: var(--text-dark);
+            transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+        .portfolio-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.08);
+        }
+
+        .card-icon {
+            width: 65px; height: 65px;
+            background: rgba(255, 77, 109, 0.1);
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            color: var(--rose-accent);
+            margin: 0 auto 10px;
+        }
+        .portfolio-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+        }
+        .portfolio-card p {
+            font-size: 14px;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        /* --- Footer --- */
+        footer {
+            text-align: center;
+            padding: 50px;
+            opacity: 0.5;
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: var(--text-dark);
+        }
+
+        .heart-particle {
+            position: fixed;
+            pointer-events: none;
+            color: var(--rose-accent);
+            opacity: 0.3;
+            animation: float 8s linear forwards;
+            z-index: -1;
+        }
+        @keyframes float {
+            from { transform: translateY(110vh) rotate(0); }
+            to { transform: translateY(-10vh) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loader -->
+    <div id="loader"><div class="loader-ring"></div></div>
+
+    <!-- Password Lock -->
+    <div id="auth-overlay">
+        <div class="auth-card" id="auth-box">
+            <h2 style="font-family: 'Playfair Display', serif; color: var(--text-dark);">Love Grows Here</h2>
+            <p style="opacity:0.6; font-size:13px; margin-top:5px;">i love you</p>
+            <input type="password" id="pass-input" class="pass-input" placeholder="Password">
+            <button onclick="checkPass()" class="pass-btn">Enter</button>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="nav">
+        <div class="nav-brand">maloktyy</div>
+        <div class="status-badge">
+            <div class="status-dot"></div>
+            ONLINE
+        </div>
+    </nav>
+
+    <!-- Hero Content -->
+    <section class="hero">
+        <h1 id="hero-title">My Heart Belongs<br> <span style="color:var(--rose-accent); font-style:italic;">Only to You</span></h1>
+        <p id="typewriter"></p>
+    </section>
+
+    <!-- Main Grid (3 Buttons) -->
+    <main class="main-grid">
+        <a href="page2.html" class="portfolio-card">
+            <div class="card-icon">💌</div>
+            <h3>Daily Love Notes</h3>
+            <p>One sweet message every day, just to make you smile.</p>
+        </a>
+
+        <a href="soon.html" class="portfolio-card">
+            <div class="card-icon">💕</div>
+            <h3>For Your Beautiful Eyes</h3>
+            <p>Every letter is written with love just for you</p>
+        </a>
+        
+    </main>
+
+    <footer>© 2026 Made with Love • Just for Malak</footer>
+
+    <script>
+        const PASSCODE = "maloktyy";
+
+        window.onload = () => {
+            // إزالة التحميل
+            setTimeout(() => {
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => document.getElementById('loader').style.display = 'none', 800);
+            }, 1000);
+
+            // إنشاء القلوب
+            setInterval(createParticle, 1000);
+        };
+
+        function checkPass() {
+            const val = document.getElementById('pass-input').value;
+            if(val.toLowerCase() === PASSCODE) {
+                document.getElementById('auth-overlay').style.transform = 'translateY(-100%)';
+                document.getElementById('nav').style.opacity = '1';
+                startTypewriter();
+            } else {
+                alert("Wrong Password!");
+            }
+        }
+
+        function startTypewriter() {
+            const text = "Every Moment with You Is a Treasure";
+            let i = 0;
+            const target = document.getElementById('typewriter');
+            function type() {
+                if (i < text.length) {
+                    target.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, 70);
+                }
+            }
+            type();
+        }
+
+        function createParticle() {
+            const p = document.createElement('div');
+            p.className = 'heart-particle';
+            p.innerHTML = ['✦', '❤', '🌸'][Math.floor(Math.random()*3)];
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.fontSize = (Math.random() * 10 + 12) + 'px';
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 8000);
+        }
+
+    // أضف هذا داخل script الصفحة الرئيسية
+if (sessionStorage.getItem('unlocked') === 'true') {
+    document.getElementById('auth-overlay').style.display = 'none';
+    document.getElementById('nav').style.opacity = '1';
+    startTypewriter(); // تشغيل أنيميشن الكتابة فوراً
+}
+        
+    </script>
+</body>
+</html>

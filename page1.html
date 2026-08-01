@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title></title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+:root {
+            --bg-pink: #fbc2eb;
+            --bg-pink-light: #a6c1ee; /* تداخل خفيف للجمال */
+            --rose-accent: #ff4d6d;
+            --rose-soft: #ff85a2;
+            --text-dark: #4a1c2c;
+            --glass-card: rgba(255, 255, 255, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.6);
+        }
+        /* تنسيق شريط التمرير داخل البطاقة فقط */
+        .glass-sheet::-webkit-scrollbar {
+            width: 6px;
+        }
+        .glass-sheet::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            margin: 20px 0;
+        }
+        .glass-sheet::-webkit-scrollbar-thumb {
+            background: var(--rose-accent);
+            border-radius: 10px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, #fbc2eb 0%, #ff9a9e 100%);
+            background-attachment: fixed;
+            color: var(--text-dark);
+            height: 100vh; /* تثبيت طول الصفحة */
+            overflow: hidden; /* منع سكرول الموقع كامل */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Loader --- */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #fbc2eb;
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.8s ease;
+        }
+        .loader-ring {
+            width: 50px; height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid var(--rose-accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 92%;
+            max-width: 1000px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 100px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            z-index: 1000;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text-dark);
+            background: rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid var(--glass-border);
+            transition: 0.3s;
+        }
+        .back-btn:hover { background: var(--rose-accent); color: white; }
+
+        .nav-brand { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 18px; }
+
+        /* --- Header --- */
+        .hero {
+            padding-top: 100px;
+            padding-bottom: 20px;
+            text-align: center;
+            flex-shrink: 0; /* منع تقلص العنوان */
+        }
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(24px, 6vw, 45px);
+            padding: 0 20px;
+        }
+
+        /* --- Content Area --- */
+        .content-container {
+            flex-grow: 1; /* تأخذ باقي المساحة المتاحة */
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* للتأكد من أن الحاوية لا تسرب السكرول */
+        }
+
+        .glass-sheet {
+            background: var(--glass-card);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 35px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+            animation: slideIn 1s ease-out;
+            
+            /* تفعيل السكرول هنا فقط */
+            overflow-y: auto; 
+            max-height: 100%; /* تملأ المساحة المتاحة في الـ container */
+        }
+
+        .glass-sheet h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            margin: 30px 0 15px;
+            color: var(--rose-accent);
+            border-bottom: 1px dashed var(--rose-accent);
+            display: inline-block;
+        }
+        .glass-sheet h2:first-child { margin-top: 0; }
+
+        .paragraph {
+            font-size: 17px;
+            margin-bottom: 20px;
+            text-align: justify;
+            color: var(--text-dark);
+            opacity: 0.9;
+            line-height: 1.8;
+        }
+
+        /* --- Animations --- */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .heart-particle {
+            position: fixed;
+            pointer-events: none;
+            color: var(--rose-accent);
+            opacity: 0.3;
+            animation: float 8s linear forwards;
+            z-index: -1;
+        }
+        @keyframes float {
+            from { transform: translateY(110vh) rotate(0); }
+            to { transform: translateY(-10vh) rotate(360deg); }
+        }
+
+        /* موبايل */
+        @media (max-width: 650px) {
+            .nav-brand { display: none; }
+            .hero { padding-top: 90px; }
+            .glass-sheet { padding: 30px 20px; border-radius: 25px; }
+            .paragraph { font-size: 16px; text-align: left; }
+        }
+
+        footer {
+            padding: 15px;
+            text-align: center;
+            font-size: 10px;
+            opacity: 0.6;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loader"><div class="loader-ring"></div></div>
+
+    <nav>
+        <a href="index.html" class="back-btn" onclick="setSession()">
+            <span>←</span> Back
+        </a>
+        <div class="nav-brand">maloktyy</div>
+    </nav>
+
+    <section class="hero">
+        <!-- <h1 id="typewriter"></h1> -->
+    </section>
+
+    <main class="content-container">
+        <div class="glass-sheet">
+            
+            <p class="paragraph">
+                soon
+            </p>
+            
+
+            
+        </div>
+    </main>
+
+    <footer>© 2026 Made with Love • Just for Malak</footer>
+
+    <script>
+        window.onload = () => {
+            setTimeout(() => {
+                const loader = document.getElementById('loader');
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 800);
+            }, 500);
+
+            startTypewriter();
+            setInterval(createParticle, 1000);
+        };
+
+        function setSession() { sessionStorage.setItem('unlocked', 'true'); }
+
+        function startTypewriter() {
+            const text = "Every word here is written for you..";
+            let i = 0;
+            const target = document.getElementById('typewriter');
+            function type() {
+                if (i < text.length) {
+                    target.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, 80);
+                }
+            }
+            type();
+        }
+
+        function createParticle() {
+            const p = document.createElement('div');
+            p.className = 'heart-particle';
+            p.innerHTML = ['✦', '❤', '🌸', '✨'][Math.floor(Math.random()*4)];
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.fontSize = (Math.random() * 10 + 15) + 'px';
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 8000);
+        }
+    </script>
+</body>
+</html>
