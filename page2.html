@@ -417,19 +417,19 @@
             }, 600);
 
             displayDailyMessage();
-            setInterval(createParticle, 1000);
-        };
 
-        function displayDailyMessage() {
+setInterval(displayDailyMessage, 60000); // يفحص كل دقيقة
+setInterval(createParticle, 1000);
+        };
+function displayDailyMessage() {
     const now = new Date();
 
-    // عدد الفترات (كل فترة = 6 ساعات) منذ 1 يناير 1970
-    const sixHourBlock = Math.floor(now.getTime() / (1000 * 60 * 60 * 6));
+    const day = Math.floor(now.getTime() / (1000 * 60 * 60 * 24)); // رقم اليوم
+    const period = Math.floor(now.getHours() / 6); // 0،1،2،3
 
-    // اختيار الرسالة
-    const index = sixHourBlock % loveMessages.length;
+    const index = (day * 4 + period) % loveMessages.length;
 
-    document.getElementById("daily-quote").innerText = loveMessages[index];
+    document.getElementById("daily-quote").textContent = loveMessages[index];
 }
 
         function setSession() {
