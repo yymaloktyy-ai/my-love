@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Love Collector • Infinite System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --rose: #ff4d6d;
+            --rose-dark: #c9184a;
+            --rose-light: #ff85a2;
+            --glass: rgba(255, 255, 255, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.7);
+            --text: #4a1c2c;
+            --safe-top: env(safe-area-inset-top);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background: linear-gradient(135deg, #fbc2eb 0%, #ff9a9e 100%);
+            background-attachment: fixed;
+            height: 100vh; height: -webkit-fill-available;
+            overflow: hidden; color: var(--text);
+            display: flex; flex-direction: column;
+            position: fixed; width: 100%;
+        }
+
+        #loader { position: fixed; inset: 0; background: #fbc2eb; z-index: 10000; display: flex; justify-content: center; align-items: center; transition: 0.8s; }
+        .loader-ring { width: 45px; height: 45px; border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid var(--rose); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        nav {
+            position: relative; margin-top: calc(var(--safe-top) + 15px);
+            align-self: center; width: 92%; max-width: 800px; height: 60px;
+            background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: 100px; border: 1px solid var(--glass-border);
+            display: flex; justify-content: space-between; align-items: center; padding: 0 20px; z-index: 1000;
+        }
+        .back-btn { text-decoration: none; color: var(--text); background: var(--glass); padding: 8px 16px; border-radius: 50px; font-size: 11px; font-weight: 800; border: 1px solid var(--glass-border); }
+
+        .game-ui {
+            position: relative; margin-top: 15px; width: 100%; display: flex; justify-content: center; gap: 8px; z-index: 10; padding: 0 10px;
+        }
+        .ui-panel {
+            background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            padding: 8px 15px; border-radius: 18px; border: 1px solid var(--glass-border);
+            display: flex; align-items: center; gap: 6px; flex: 1; max-width: 120px;
+        }
+        .ui-label { font-size: 7.5px; font-weight: 800; opacity: 0.6; text-transform: uppercase; display: block; }
+        .ui-value { font-size: 14px; font-weight: 800; }
+
+        #arena { flex: 1; position: relative; width: 100%; touch-action: none; overflow: hidden; cursor: none; }
+        #basket {
+            position: absolute; bottom: 40px; left: 50%; width: 90px; height: 45px;
+            background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 2px solid white; border-radius: 12px 12px 30px 30px;
+            transform: translateX(-50%); display: flex; align-items: center; justify-content: center;
+            font-size: 22px; box-shadow: 0 10px 25px rgba(255, 77, 109, 0.2); will-change: left; z-index: 50;
+        }
+
+        .drop-item { position: absolute; top: -50px; font-size: 32px; pointer-events: none; will-change: transform; }
+
+        #modal {
+            position: fixed; inset: 0; background: rgba(251, 194, 235, 0.85);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            display: none; justify-content: center; align-items: center; z-index: 9000; padding: 20px;
+        }
+        .card {
+            background: white; padding: 30px 20px; border-radius: 35px;
+            text-align: center; width: 100%; max-width: 380px;
+            border: 1px solid var(--glass-border); box-shadow: 0 30px 60px rgba(74, 28, 44, 0.1);
+            max-height: 85vh; display: flex; flex-direction: column;
+        }
+
+        .msg-scroll {
+            margin: 15px 0; overflow-y: auto; flex: 1; padding: 5px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .love-bubble {
+            background: #fff0f3; padding: 12px 16px; border-radius: 15px;
+            border-left: 4px solid var(--rose); font-size: 13.5px; line-height: 1.4; color: #5a2a3a;
+            text-align: left; animation: popIn 0.4s ease-out backwards;
+        }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        .discovery-stats { font-size: 9px; font-weight: 700; color: var(--rose); margin-top: 5px; text-transform: uppercase; opacity: 0.8; }
+
+        .btn-play {
+            background: var(--rose); color: white; border: none; padding: 16px;
+            border-radius: 100px; font-weight: 800; cursor: pointer; width: 100%; font-size: 16px;
+        }
+
+        .shake { animation: shake 0.4s; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+
+        footer { position: fixed; bottom: 10px; width: 100%; text-align: center; font-size: 8px; opacity: 0.5; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+    <div id="loader"><div class="loader-ring"></div></div>
+
+    <nav>
+        <a href="index.html" class="back-btn" onclick="sessionStorage.setItem('unlocked','true')">Back</a>
+        <div style="font-family: 'Playfair Display', serif; font-weight: 700; font-style: italic;">Maloktyy</div>
+    </nav>
+
+    <div class="game-ui">
+        <div class="ui-panel"><div><span class="ui-label">Score</span><span class="ui-value" id="score-text">0</span></div></div>
+        <div class="ui-panel"><div><span class="ui-label">Best</span><span class="ui-value" id="high-score">0</span></div></div>
+        <div class="ui-panel"><div><span class="ui-label">Health</span><span class="ui-value" id="lives-text">❤️❤️❤️</span></div></div>
+    </div>
+
+    <main id="arena">
+        <div id="basket">💝</div>
+    </main>
+
+    <div id="modal">
+        <div class="card">
+            <h2 style="font-family:'Playfair Display',serif; margin: 0;">Love Earned</h2>
+            <div style="font-size: 42px; font-weight: 900; color: var(--rose);" id="final-score">0</div>
+            <div id="discovery-msg" class="discovery-stats">Unlocking your hearts...</div>
+            
+            <div class="msg-scroll" id="msg-container"></div>
+
+            <button class="btn-play" onclick="reset()">Collect More</button>
+        </div>
+    </div>
+
+    <footer>MADE WITH LOVE FOR MALAK</footer>
+
+    <script>
+        // مصفوفة الجمل (يمكنك إضافة مئات الجمل هنا)
+        const loveMessages = [
+"Maloktyy you make every moment feel magical",
+"Lolyyy you are the prettiest part of my life",
+"You are the first person I think about every morning",
+"Maloktyy your smile makes my whole day better",
+"I fall in love with you a little more every day",
+"Lolyyy you are my favorite notification",
+"You are the best thing that ever happened to me",
+"Maloktyy I wish I could hug you right now",
+"I love every little thing about you",
+"Lolyyy you make my heart feel safe",
+"You are my favorite person in this world",
+"Maloktyy you are my happy place",
+"I never get tired of hearing your voice",
+"Lolyyy you make everything beautiful",
+"You are always on my mind",
+"Maloktyy I love you more than yesterday",
+"I can't stop smiling because of you",
+"Lolyyy you are my sweetest dream",
+"You complete my heart",
+"Maloktyy I feel lucky every single day because of you",
+"You are my favorite reason to smile",
+"Lolyyy I love the way you laugh",
+"You make ordinary days feel special",
+"Maloktyy I want every tomorrow with you",
+"You are my forever person",
+"Lolyyy I still get butterflies because of you",
+"I love the way you make me feel",
+"Maloktyy you are my greatest blessing",
+"You are my safe place",
+"Lolyyy I love every memory with you",
+"You are my sunshine",
+"Maloktyy your happiness means everything to me",
+"You are the reason my heart feels alive",
+"Lolyyy I miss you even when we just talked",
+"I could look at you forever",
+"Maloktyy you make my world brighter",
+"You are my favorite hello",
+"Lolyyy I hope you always smile",
+"I never knew love until I met you",
+"Maloktyy you make my heart race",
+"You are my peace",
+"Lolyyy you are everything I ever wanted",
+"I love spending every second with you",
+"Maloktyy your smile is my weakness",
+"You are my sweetest habit",
+"Lolyyy you are my comfort",
+"I always choose you",
+"Maloktyy I love your beautiful heart",
+"You are my favorite thought",
+"Lolyyy you are my little happiness",
+"My heart belongs to you",
+"Maloktyy I love making memories with you",
+"You are my dream come true",
+"Lolyyy your voice makes my day",
+"I love seeing you happy",
+"Maloktyy I promise to always love you",
+"You make my life complete",
+"Lolyyy I feel at home with you",
+"I love the way you care about me",
+"Maloktyy I adore your smile",
+"You are my forever favorite",
+"Lolyyy you are my biggest blessing",
+"I can't imagine life without you",
+"Maloktyy you make me believe in forever",
+"You are my favorite adventure",
+"Lolyyy you are always beautiful",
+"I want to grow old with you",
+"Maloktyy I miss you every second",
+"You make my soul smile",
+"Lolyyy you are the cutest girl ever",
+"I love talking to you",
+"Maloktyy I never stop thinking about you",
+"You are my calm",
+"Lolyyy you make my heart melt",
+"I love every hug from you",
+"Maloktyy your eyes are my favorite view",
+"You make me feel complete",
+"Lolyyy I am proud to call you mine",
+"You are my once in a lifetime",
+"Maloktyy I would choose you forever",
+"I smile every time I see your name",
+"Lolyyy you are my little miracle",
+"You are my whole world",
+"Maloktyy thank you for existing",
+"I love your beautiful soul",
+"Lolyyy I wish I was with you now",
+"You are my greatest gift",
+"Maloktyy I love you endlessly",
+"You make every day worth living",
+"Lolyyy you are my favorite chapter",
+"I hope we stay together forever",
+"Maloktyy you are my sweetest love",
+"You are the reason I believe in soulmates",
+"Lolyyy you are my favorite reason to wake up",
+"You make my heart smile without trying",
+"Maloktyy I can't wait to see you again",
+"Your happiness means the world to me",
+"I love every little moment we share",
+"Lolyyy you are my sweetest surprise",
+"You are my forever safe place",
+"Maloktyy every day with you is my favorite day",
+"I never knew love could feel like this",
+"You are my lucky star",
+"Lolyyy I could spend forever talking to you",
+"You make everything feel right",
+"Maloktyy I miss your smile",
+"I love how you make me laugh",
+"You are my favorite dream",
+"Lolyyy I love being yours",
+"You are the reason I believe in destiny",
+"Maloktyy I think about you all the time",
+"You make my world brighter than the sun",
+"I'll always choose you first",
+"Lolyyy your hugs are my favorite place",
+"You are my greatest treasure",
+"Maloktyy I love seeing you happy",
+"You make every day worth smiling",
+"I never want to stop loving you",
+"Lolyyy you are my heart",
+"You are my sweetest addiction",
+"Maloktyy you are the answer to my prayers",
+"I love every second spent with you",
+"You make me feel like the luckiest guy alive",
+"Lolyyy you are my forever smile",
+"You are my little piece of heaven",
+"Maloktyy I adore everything about you",
+"You make my heart feel full",
+"I'll always protect your smile",
+"Lolyyy I love your beautiful eyes",
+"You are my home",
+"Maloktyy I fall for you every day",
+"You are my favorite blessing",
+"I wish I could hold your hand forever",
+"Lolyyy I smile whenever I see your name",
+"You make my soul peaceful",
+"Maloktyy your voice is my favorite sound",
+"You are my endless happiness",
+"I love how special you make me feel",
+"Lolyyy you are my forever girl",
+"You make life so much better",
+"Maloktyy I thank God for you every day",
+"I love every memory we create together",
+"You are the best chapter of my life",
+"Lolyyy I miss you more than you know",
+"You are my sunshine after every storm",
+"Maloktyy I could never stop loving you",
+"You make every heartbeat meaningful",
+"I feel complete because of you",
+"Lolyyy you are my favorite miracle",
+"You make me believe in forever",
+"Maloktyy I love your cute smile",
+"You are everything I ever wanted",
+"I'll always be your biggest supporter",
+"Lolyyy you are my peace after a long day",
+"Your love makes me stronger",
+"Maloktyy I want to make you smile forever",
+"I never get bored of talking to you",
+"You are my sweetest memory",
+"Lolyyy I hope I make you as happy as you make me",
+"You are my favorite person to miss",
+"Maloktyy I love you more every sunrise",
+"You are the calm in my heart",
+"I'll never stop appreciating you",
+"Lolyyy you make my days brighter",
+"You are the reason my heart is happy",
+"Maloktyy I love every little thing you do",
+"You are my dream girl",
+"I always find peace with you",
+"Lolyyy you are my favorite hello and forever goodbye",
+"Maloktyy I love your kindness",
+"You make every moment unforgettable",
+"You are my sweetest forever",
+"Lolyyy your smile is my weakness",
+"I'll always be grateful for your love",
+"Maloktyy you are the best gift life gave me",
+"You make my heart dance",
+"I can't imagine tomorrow without you",
+"Lolyyy you are my little angel",
+"Your love is all I need",
+"Maloktyy I promise to always stand beside you",
+"Maloktyy your love is my favorite feeling",
+"You make my heart beat a little faster",
+"Lolyyy I still smile because of you",
+"I never want a day without you",
+"Maloktyy you are my beautiful forever",
+"You make every dream worth chasing",
+"I love how your eyes shine",
+"Lolyyy I miss you even when you're sleeping",
+"You are my happy ending",
+"Maloktyy you are my sweetest blessing",
+"I always feel lucky with you",
+"Your smile can fix my worst day",
+"Lolyyy I love every little thing about you",
+"You are my heart's favorite person",
+"Maloktyy I could never replace you",
+"I love hearing your laugh",
+"You are my favorite hello every morning",
+"Lolyyy you are my biggest comfort",
+"You make my heart feel complete",
+"Maloktyy every second with you is special",
+"I love the way you say my name",
+"You are my greatest happiness",
+"Lolyyy I wish I could be beside you now",
+"Your love changed my life",
+"Maloktyy I want to kiss your forehead",
+"I love making you blush",
+"You are my reason to keep smiling",
+"Lolyyy you are my dream come true",
+"Maloktyy I can't stop loving you",
+"You are my little sunshine",
+"I love spending time with you",
+"Lolyyy you make my world beautiful",
+"You are the cutest part of my life",
+"Maloktyy you make my soul happy",
+"I never stop thinking about you",
+"You are the love I always prayed for",
+"Lolyyy your voice is my favorite song",
+"Maloktyy I love your beautiful heart",
+"You are my forever choice",
+"I feel safe whenever I think about you",
+"Lolyyy I love you more than yesterday",
+"You make every moment magical",
+"Maloktyy you are my sweetest home",
+"I'll never stop choosing you",
+"You are my favorite memory",
+"Lolyyy you make my heart melt every day",
+"Maloktyy I love the way you care",
+"You are my little piece of happiness",
+"I love waking up knowing you are mine",
+"Lolyyy I adore your smile",
+"You are everything my heart wanted",
+"Maloktyy I love your soft heart",
+"I'll always be proud of you",
+"You make every day brighter",
+"Lolyyy you are my lucky charm",
+"I love every hug from you",
+"Maloktyy you make my dreams come alive",
+"You are my forever happiness",
+"I'll always be by your side",
+"Lolyyy you make life feel easy",
+"Maloktyy your smile is my favorite view",
+"You are my sweetest forever",
+"I love every conversation with you",
+"Lolyyy I love seeing your name on my phone",
+"You are my biggest blessing",
+"Maloktyy your love is enough for me",
+"I'll always protect your heart",
+"You make every heartbeat meaningful",
+"Lolyyy you are my favorite person to annoy",
+"Maloktyy I love making you laugh",
+"You are my beautiful angel",
+"I'll always hold your hand",
+"Lolyyy I feel at home with you",
+"You are my forever dream",
+"Maloktyy your happiness is my happiness",
+"I'll never let you face life alone",
+"You are my calm after every storm",
+"Lolyyy I love every second with you",
+"Maloktyy I love how cute you are",
+"You are my forever smile",
+"I'll always love you just the way you are",
+"Lolyyy I hope you know how special you are",
+"Maloktyy you are my heart's favorite place",
+"I love every memory we have together",
+"You are the reason my heart feels warm",
+"Lolyyy I could stare at you forever",
+"Maloktyy you make me believe in miracles",
+"You are my sweetest person",
+"I'll always make room for you in my heart",
+"Lolyyy I love your beautiful soul",
+"Maloktyy I love you more every heartbeat",
+"You are my forever home",
+"I'll never stop appreciating you",
+"Lolyyy I want every sunrise with you",
+"Maloktyy you are my favorite chapter",
+"You make my life feel complete",
+"I'll always thank God for sending you",
+"Lolyyy I love you endlessly",
+"Maloktyy you are all I ever wanted",
+"I love the way you care for me",
+"You are my favorite place to be",
+"Lolyyy you make my heart feel alive",
+"Maloktyy every love song reminds me of you",
+"You are the light of my life",
+"I'll never stop falling for you",
+"Lolyyy I love making you smile",
+"You are my forever happiness",
+"Maloktyy I want every future with you",
+"You are my favorite part of every day",
+"I love you more than you'll ever know",
+"Lolyyy you are the queen of my heart",
+"Maloktyy forever starts with you",
+"Lolyyy you make my heart feel warm",
+"I'll always be here for you",
+"Maloktyy I treasure every moment with you",
+"You are the love of my life",
+"Lolyyy I never want to lose you",
+"My favorite place is beside you",
+"Maloktyy you are everything to me",
+"I love you more every single day"
+]
+
+        let score = 0, lives = 3, isRunning = true;
+        let highScore = localStorage.getItem('malakHS') || 0;
+        let seenIndices = JSON.parse(localStorage.getItem('malakSeenMsgs')) || [];
+
+        const basket = document.getElementById('basket'), arena = document.getElementById('arena');
+        document.getElementById('high-score').innerText = highScore;
+
+        window.onload = () => {
+            setTimeout(() => { document.getElementById('loader').style.display = 'none'; }, 600);
+            init();
+        };
+
+        function handleInput(e) {
+            if(!isRunning) return;
+            const x = (e.type.includes('mouse') ? e.clientX : e.touches[0].clientX);
+            const rect = arena.getBoundingClientRect();
+            let pos = x - rect.left;
+            const limit = basket.offsetWidth / 2;
+            pos = Math.max(limit, Math.min(rect.width - limit, pos));
+            basket.style.left = pos + 'px';
+        }
+
+        arena.addEventListener('mousemove', handleInput);
+        arena.addEventListener('touchmove', (e) => { e.preventDefault(); handleInput(e); }, {passive: false});
+
+        function init() {
+            if(!isRunning) return;
+            spawn();
+            let tempo = Math.max(300, 1100 - (score * 18));
+            setTimeout(init, tempo);
+        }
+
+        function spawn() {
+            if(!isRunning) return;
+            const item = document.createElement('div');
+            item.className = 'drop-item';
+            item.innerHTML = ['❤️','💖','🌹','✨','🌸'][Math.floor(Math.random()*5)];
+            item.style.left = (Math.random() * (arena.offsetWidth - 60)) + 30 + 'px';
+            arena.appendChild(item);
+
+            let y = -50;
+            let speed = (arena.offsetHeight / 350) + (score * 0.15);
+
+            function fall() {
+                if(!isRunning) { item.remove(); return; }
+                y += speed;
+                item.style.top = y + 'px';
+                const r = item.getBoundingClientRect(), b = basket.getBoundingClientRect();
+                
+                if (r.bottom >= b.top && r.bottom <= b.bottom && r.right >= b.left && r.left <= b.right) {
+                    score++;
+                    document.getElementById('score-text').innerText = score;
+                    basket.style.transform = 'translateX(-50%) scale(1.1)';
+                    setTimeout(()=> basket.style.transform='translateX(-50%)', 100);
+                    item.remove();
+                } else if (y > arena.offsetHeight) {
+                    item.remove(); lives--; updateUI();
+                    document.body.classList.add('shake');
+                    setTimeout(()=>document.body.classList.remove('shake'), 400);
+                    if(lives <= 0) over();
+                } else { requestAnimationFrame(fall); }
+            }
+            fall();
+        }
+
+        function updateUI() {
+            let s = ""; for(let i=0; i<3; i++) s += (i < lives) ? "❤️" : "🖤";
+            document.getElementById('lives-text').innerText = s;
+        }
+
+        function over() {
+            isRunning = false;
+            if(score > highScore) { 
+                highScore = score; 
+                localStorage.setItem('malakHS', highScore); 
+                document.getElementById('high-score').innerText = highScore;
+            }
+
+            const container = document.getElementById('msg-container');
+            container.innerHTML = "";
+            document.getElementById('final-score').innerText = score;
+
+            // تحديد كم رسالة ستظهر بناءً على السكور
+            let numToGet = Math.max(1, Math.floor(score / 5));
+            if(numToGet > 8) numToGet = 8; 
+
+            // نظام عدم التكرار الذكي
+            let pool = [];
+            loveMessages.forEach((m, index) => {
+                if(!seenIndices.includes(index)) pool.push(index);
+            });
+
+            // إذا انتهت كل الجمل، صفر القائمة وابدأ من جديد
+            if(pool.length < numToGet) {
+                seenIndices = [];
+                loveMessages.forEach((_, index) => pool.push(index));
+            }
+
+            let selection = [];
+            for(let i=0; i < numToGet; i++) {
+                if(pool.length === 0) break;
+                const randPos = Math.floor(Math.random() * pool.length);
+                const msgIdx = pool[randPos];
+                selection.push(loveMessages[msgIdx]);
+                seenIndices.push(msgIdx); // حفظها كرسالة تمت رؤيتها
+                pool.splice(randPos, 1);
+            }
+
+            localStorage.setItem('malakSeenMsgs', JSON.stringify(seenIndices));
+
+            // تحديث العداد
+            document.getElementById('discovery-msg').innerText = 
+                ``;
+
+            selection.forEach((m, i) => {
+                setTimeout(() => {
+                    const b = document.createElement('div');
+                    b.className = 'love-bubble'; b.innerText = m;
+                    container.appendChild(b);
+                    container.scrollTop = container.scrollHeight;
+                }, i * 400);
+            });
+
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function reset() {
+            score = 0; lives = 3; isRunning = true;
+            document.getElementById('score-text').innerText = '0';
+            updateUI();
+            document.getElementById('modal').style.display = 'none';
+            init();
+        }
+    </script>
+</body>
+</html>
