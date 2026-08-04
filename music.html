@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Our Soundtrack | M & T</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-pink: #fbc2eb;
+            --rose-accent: #ff4d6d;
+            --text-dark: #4a1c2c;
+            --glass-card: rgba(255, 255, 255, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --player-height: 85px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, #fbc2eb 0%, #ff9a9e 100%);
+            background-attachment: fixed;
+            color: var(--text-dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: calc(var(--player-height) + 50px);
+        }
+
+        /* --- Loader --- */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #fbc2eb;
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.8s ease;
+        }
+        .loader-ring {
+            width: 50px; height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid var(--rose-accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* --- Navigation Optimized --- */
+        nav {
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 94%;
+            max-width: 1100px;
+            height: 65px;
+            background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 100px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 5000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .back-btn {
+            text-decoration: none;
+            color: var(--text-dark);
+            background: rgba(255, 255, 255, 0.4);
+            padding: 10px 22px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid var(--glass-border);
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .back-btn:hover { background: var(--rose-accent); color: white; transform: scale(1.05); }
+
+        /* --- Content Layout --- */
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 110px auto 20px; /* Offset for Nav */
+            animation: fadeIn 1s ease-out;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .hero-section h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(32px, 8vw, 60px);
+            color: var(--text-dark);
+            margin-bottom: 12px;
+        }
+        .hero-section p { font-style: italic; opacity: 0.7; font-size: clamp(14px, 4vw, 17px); }
+
+        /* --- Search & Grid --- */
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+        .search-bar {
+            width: 100%;
+            padding: 16px 30px;
+            border-radius: 100px;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-card);
+            backdrop-filter: blur(10px);
+            outline: none;
+            transition: 0.3s;
+            font-size: 15px;
+        }
+        .search-bar:focus { background: white; border-color: var(--rose-accent); box-shadow: 0 5px 20px rgba(255, 77, 109, 0.1); }
+
+        .music-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
+        }
+
+        .song-card {
+            background: var(--glass-card);
+            border: 1px solid var(--glass-border);
+            padding: 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+        .song-card:hover { transform: translateY(-10px); background: white; }
+
+        .cover-img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            border-radius: 20px;
+            object-fit: cover;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+        .song-card h3 { font-size: 14px; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .song-card p { font-size: 12px; opacity: 0.6; }
+
+        /* --- Improved Sticky Player --- */
+        .player-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(150px);
+            width: 94%;
+            max-width: 900px;
+            height: var(--player-height);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
+            z-index: 5000;
+            transition: 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        }
+        .player-bar.active { transform: translateX(-50%) translateY(0); }
+
+        .p-info { display: flex; align-items: center; gap: 15px; width: 30%; }
+        .p-thumb { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 3px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .p-meta { overflow: hidden; }
+        .p-meta h4 { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .p-meta p { font-size: 11px; opacity: 0.6; }
+
+        .p-controls { display: flex; flex-direction: column; align-items: center; width: 40%; gap: 5px; }
+        .c-btns { display: flex; align-items: center; gap: 20px; }
+        .btn-main { width: 45px; height: 45px; border-radius: 50%; background: var(--rose-accent); color: white; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.3s; }
+        .btn-main:hover { transform: scale(1.1); box-shadow: 0 5px 15px rgba(255, 77, 109, 0.3); }
+        .btn-sec { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-dark); opacity: 0.7; }
+
+        .p-progress { width: 100%; display: flex; align-items: center; gap: 10px; font-size: 10px; font-weight: 600; opacity: 0.5; }
+        .bar-bg { flex: 1; height: 4px; background: rgba(0,0,0,0.05); border-radius: 10px; position: relative; cursor: pointer; }
+        .bar-fill { height: 100%; background: var(--rose-accent); border-radius: 10px; width: 0%; position: relative; }
+        .bar-fill::after { content: ''; position: absolute; right: -5px; top: -4px; width: 12px; height: 12px; background: white; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
+        .p-vol { width: 30%; display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+        .vol-slider { width: 70px; accent-color: var(--rose-accent); height: 3px; opacity: 0.6; cursor: pointer; }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- Responsiveness for Small Screens --- */
+        @media (max-width: 768px) {
+            .p-vol, .hero-section p { display: none; }
+            .p-info { width: 40%; }
+            .p-controls { width: 60%; }
+            .bar-bg { height: 3px; }
+            .btn-main { width: 38px; height: 38px; }
+            .music-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+            .container { margin-top: 100px; }
+            .p-thumb { width: 45px; height: 45px; }
+            .p-meta h4 { max-width: 80px; }
+        }
+
+        footer { text-align: center; padding: 40px 0; font-size: 11px; opacity: 0.5; }
+    </style>
+</head>
+<body>
+
+    <div id="loader"><div class="loader-ring"></div></div>
+
+    <nav>
+        <!-- الزر يرجع إلى index.html مباشرة -->
+        <a href="index.html" class="back-btn" onclick="setSession()">
+            Back
+        </a>
+    <div style="font-family: 'Playfair Display', serif; font-weight: 700;">maloktyy</div>
+        <div id="fav-badge" style="font-size: 13px; font-weight: 600; opacity: 0.7;">❤️ 0</div>
+    </nav>
+
+    <div class="container">
+        <header class="hero-section">
+                <h1>Songs for You</h1>
+                <p>"These aren't just songs they're little pieces of my heart for you."</p>
+        </header>
+
+        <div class="search-container">
+            <input type="text" id="searchTrack" class="search-bar" placeholder="Find our special song...">
+        </div>
+
+        <div class="music-grid" id="grid">
+            <!-- Content loaded via JS -->
+        </div>
+    </div>
+
+<footer>© 2026 Every Song Here Carries a Piece of My Heart • Lolyyy ❤️</footer>
+    <!-- Hidden Player UI -->
+    <div class="player-bar" id="player">
+        <div class="p-info">
+            <img src="" id="pCover" class="p-thumb">
+            <div class="p-meta">
+                <h4 id="pTitle">Title</h4>
+                <p id="pArtist">Artist</p>
+            </div>
+        </div>
+
+        <div class="p-controls">
+            <div class="c-btns">
+                <button class="btn-sec" onclick="skip(-1)">⏮</button>
+                <div class="btn-main" id="playBtn">▶</div>
+                <button class="btn-sec" onclick="skip(1)">⏭</button>
+            </div>
+            <div class="p-progress">
+                <span id="currentTime">0:00</span>
+                <div class="bar-bg" id="progressArea">
+                    <div class="bar-fill" id="progressFill"></div>
+                </div>
+                <span id="durationTime">0:00</span>
+            </div>
+        </div>
+
+        <div class="p-vol">
+            <!-- <span>🔈</span> -->
+            <input type="range" class="vol-slider" min="0" max="1" step="0.1" value="0.7" id="volRange">
+        </div>
+    </div>
+
+    <audio id="mainAudio" style="display: none;"></audio>
+
+    <script>
+        const TRACK_DATA = [
+            { id: 1, title: "Lover", artist: "Taylor Swift", cover: "https://picsum.photos/seed/music1/400", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+            { id: 2, title: "Perfect", artist: "Ed Sheeran", cover: "https://picsum.photos/seed/music2/400", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+            { id: 3, title: "Night Changes", artist: "One Direction", cover: "https://picsum.photos/seed/music3/400", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+            { id: 4, title: "River Flows In You", artist: "Yiruma", cover: "https://picsum.photos/seed/music4/400", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+            { id: 5, title: "Rewrite the Stars", artist: "James Arthur", cover: "https://picsum.photos/seed/music5/400", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
+            { id: 6, title: "Photograph", artist: "Ed Sheeran", cover: "https://picsum.photos/seed/music6/400", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" }
+        ];
+        
+
+        let currentIndex = -1;
+        const audio = document.getElementById('mainAudio');
+        const grid = document.getElementById('grid');
+        const player = document.getElementById('player');
+        const playBtn = document.getElementById('playBtn');
+
+        function init() {
+            renderTracks(TRACK_DATA);
+            updateFavDisplay();
+            
+            // Close Loader
+            window.onload = () => {
+                setTimeout(() => {
+                    document.getElementById('loader').style.opacity = '0';
+                    setTimeout(() => document.getElementById('loader').style.display = 'none', 600);
+                }, 800);
+            };
+        }
+
+        function renderTracks(data) {
+            grid.innerHTML = data.map((track, i) => `
+                <div class="song-card" onclick="playSong(${i})">
+                    <img src="${track.cover}" class="cover-img">
+                    <h3>${track.title}</h3>
+                    <p>${track.artist}</p>
+                </div>
+            `).join('');
+        }
+
+        function playSong(index) {
+            if (index === currentIndex) return togglePlay();
+            
+            currentIndex = index;
+            const track = TRACK_DATA[index];
+            audio.src = track.url;
+            audio.play();
+            
+            document.getElementById('pTitle').innerText = track.title;
+            document.getElementById('pArtist').innerText = track.artist;
+            document.getElementById('pCover').src = track.cover;
+            
+            player.classList.add('active');
+            playBtn.innerHTML = '⏸';
+        }
+
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play();
+                playBtn.innerHTML = '⏸';
+            } else {
+                audio.pause();
+                playBtn.innerHTML = '▶';
+            }
+        }
+
+        playBtn.onclick = togglePlay;
+
+        function skip(dir) {
+            let next = currentIndex + dir;
+            if (next < 0) next = TRACK_DATA.length - 1;
+            if (next >= TRACK_DATA.length) next = 0;
+            playSong(next);
+        }
+
+        audio.ontimeupdate = () => {
+            const pct = (audio.currentTime / audio.duration) * 100;
+            document.getElementById('progressFill').style.width = pct + '%';
+            document.getElementById('currentTime').innerText = formatTime(audio.currentTime);
+            document.getElementById('durationTime').innerText = isNaN(audio.duration) ? '0:00' : formatTime(audio.duration);
+        };
+
+        document.getElementById('progressArea').onclick = (e) => {
+            const width = document.getElementById('progressArea').clientWidth;
+            const clickX = e.offsetX;
+            audio.currentTime = (clickX / width) * audio.duration;
+        };
+
+        function formatTime(s) {
+            let m = Math.floor(s / 60);
+            let sec = Math.floor(s % 60);
+            return `${m}:${sec < 10 ? '0' + sec : sec}`;
+        }
+
+        document.getElementById('volRange').oninput = (e) => audio.volume = e.target.value;
+
+        document.getElementById('searchTrack').oninput = (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = TRACK_DATA.filter(t => t.title.toLowerCase().includes(term) || t.artist.toLowerCase().includes(term));
+            renderTracks(filtered);
+        };
+
+        function setSession() {
+            // نستخدم هذا المفتاح لفتح القفل دائماً عند الرجوع للأزرار
+            sessionStorage.setItem('unlocked', 'true');
+        }
+
+        function updateFavDisplay() {
+            // محاكاة سريعة
+            document.getElementById('fav-badge').innerText = '❤️ ' + Math.floor(Math.random() * 5 + 3);
+        }
+
+        init();
+    </script>
+</body>
+</html>
