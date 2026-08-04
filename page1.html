@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Our Story | M & T</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- Inherited & Global styles --- */
+        :root {
+            --bg-pink: #fbc2eb;
+            --rose-accent: #ff4d6d;
+            --text-dark: #4a1c2c;
+            --glass-card: rgba(255, 255, 255, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --transition-smooth: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #fbc2eb 0%, #ff9a9e 100%);
+            background-attachment: fixed;
+            color: var(--text-dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* --- Navbar (Inherited) --- */
+        nav {
+            position: fixed; top: 15px; left: 50%; transform: translateX(-50%);
+            width: 92%; max-width: 1000px; height: 60px;
+            background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: 100px; border: 1px solid var(--glass-border);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 15px; z-index: 1000;
+        }
+
+        .back-btn {
+            text-decoration: none; color: var(--text-dark);
+            background: rgba(255, 255, 255, 0.3); padding: 8px 16px;
+            border-radius: 50px; font-size: 14px; font-weight: 600;
+            border: 1px solid var(--glass-border); transition: 0.3s;
+        }
+        .back-btn:hover { background: var(--rose-accent); color: white; }
+
+        /* --- Hero Section --- */
+        .hero {
+            margin-top: 140px; text-align: center; padding: 0 20px;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 12vw, 5rem);
+            color: var(--rose-accent);
+            text-shadow: 0 10px 20px rgba(255, 77, 109, 0.15);
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            font-style: italic; opacity: 0.8; font-size: clamp(1rem, 4vw, 1.2rem);
+        }
+
+        /* --- Relationship Counter --- */
+        .counter-section {
+            margin: 60px 0; width: 90%; max-width: 600px; text-align: center;
+        }
+
+        .counter-card {
+            background: var(--glass-card); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border); border-radius: 40px;
+            padding: 40px 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .counter-label { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 3px; opacity: 0.7; }
+        .counter-number {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3.5rem, 15vw, 6rem);
+            color: var(--rose-accent);
+            margin: 10px 0;
+            filter: drop-shadow(0 0 10px rgba(255, 77, 109, 0.3));
+        }
+
+        .pulse {
+            display: inline-block; animation: pulse 2s infinite; font-size: 2rem;
+        }
+
+        /* --- Timeline Structure --- */
+        .timeline {
+            position: relative; width: 100%; max-width: 1000px;
+            margin: 80px 0; padding: 0 20px;
+        }
+
+        .timeline::after {
+            content: ''; position: absolute; width: 2px;
+            background: rgba(255, 77, 109, 0.2);
+            top: 0; bottom: 0; left: 50%; transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            margin-bottom: 60px; width: 100%; display: flex;
+            justify-content: space-between; align-items: center;
+            opacity: 0; transform: translateY(40px); transition: var(--transition-smooth);
+        }
+
+        .timeline-item.visible { opacity: 1; transform: translateY(0); }
+
+        .timeline-content {
+            width: 45%; background: var(--glass-card); backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border); border-radius: 30px;
+            padding: 30px; position: relative; transition: 0.4s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        }
+
+        .timeline-content:hover {
+            transform: translateY(-5px); background: rgba(255,255,255,0.6);
+            border-color: var(--rose-accent);
+        }
+
+        .timeline-item:nth-child(even) { flex-direction: row-reverse; }
+
+        /* Timeline Dots */
+        .timeline-dot {
+            width: 16px; height: 16px; background: var(--rose-accent);
+            border-radius: 50%; position: absolute; left: 50%; transform: translateX(-50%);
+            box-shadow: 0 0 15px var(--rose-accent); z-index: 2;
+        }
+
+        .timeline-emoji { font-size: 2.2rem; margin-bottom: 10px; display: block; }
+        .timeline-date { font-size: 0.85rem; font-weight: 700; color: var(--rose-accent); opacity: 0.9; margin-bottom: 5px; }
+        .timeline-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 8px; }
+        .timeline-days-ago { font-size: 0.75rem; background: var(--rose-accent); color: white; display: inline-block; padding: 4px 12px; border-radius: 20px; margin-top: 10px; }
+
+        /* --- Footer & Final Quote --- */
+        .ending-quote {
+            text-align: center; padding: 100px 20px; max-width: 800px;
+        }
+        .ending-quote blockquote {
+            font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 6vw, 2.8rem);
+            color: var(--text-dark); position: relative;
+        }
+
+        footer { margin: 40px 0; font-size: 11px; opacity: 0.6; }
+
+        /* --- Mobile Adaptability --- */
+        @media (max-width: 768px) {
+            .timeline::after { left: 30px; }
+            .timeline-item, .timeline-item:nth-child(even) { flex-direction: row; }
+            .timeline-content { width: calc(100% - 60px); margin-left: 60px; }
+            .timeline-dot { left: 30px; }
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px var(--rose-accent)); }
+            50% { transform: scale(1.1); filter: drop-shadow(0 0 15px var(--rose-accent)); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .heart-particle { position: fixed; pointer-events: none; color: var(--rose-accent); opacity: 0.3; animation: floatParticles 8s linear forwards; z-index: -1; }
+        @keyframes floatParticles { from { transform: translateY(110vh); } to { transform: translateY(-10vh); } }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+    <!-- هذا الزر سيرجعك لصفحة index.html ويخبر المتصفح أنك فتحت القفل مسبقاً -->
+    <a href="index.html" class="back-btn" onclick="setSession()">
+        Back
+    </a>
+    <div style="font-family: 'Playfair Display', serif; font-weight: 700;">maloktyy</div>
+</nav>
+
+    <section class="hero">
+        <span class="pulse"></span>
+            <h1>Our Story</h1>
+            <p>"Every moment with you has made my life more beautiful than I ever imagined."</p>
+    </section>
+
+    <div class="counter-section">
+        <div class="counter-card">
+    <div class="counter-label">Every Day With You Is My Favorite Day</div>
+            <div id="main-counter" class="counter-number">0</div>
+            <div class="counter-label" style="opacity: 0.9;">Days Together</div>
+            <p style="margin-top: 15px; font-size: 13px; opacity: 0.6;">
+                Our Journey Started on February 27, 2026
+            </p>
+        </div>
+    </div>
+
+    <div class="timeline" id="timeline">
+        <!-- Card 1 -->
+        <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+                <span class="timeline-emoji">💬</span>
+                <div class="timeline-date">January 20, 2026</div>
+                <h3 class="timeline-title">The Day We First Talked</h3>
+                <div class="timeline-days-ago" data-date="2026-01-20">0 Days Ago</div>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+                <span class="timeline-emoji">🥹</span>
+                <div class="timeline-date">February 23, 2026</div>
+                <h3 class="timeline-title">The Day We Finally Met</h3>
+                <div class="timeline-days-ago" data-date="2026-02-23">0 Days Ago</div>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+                <span class="timeline-emoji">💍</span>
+                <div class="timeline-date">February 27, 2026</div>
+                <h3 class="timeline-title">The Day We Became Us</h3>
+                <div class="timeline-days-ago" data-date="2026-02-27">0 Days Ago</div>
+            </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+                <span class="timeline-emoji">🌹</span>
+                <div class="timeline-date">March 2, 2026</div>
+                <h3 class="timeline-title">One More Memory With You</h3>
+                <div class="timeline-days-ago" data-date="2026-03-02">0 Days Ago</div>
+            </div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+                <span class="timeline-emoji">💕</span>
+                <div class="timeline-date">March 17, 2026</div>
+                <h3 class="timeline-title">A Beautiful Day Together</h3>
+                <div class="timeline-days-ago" data-date="2026-03-17">0 Days Ago</div>
+            </div>
+        </div>
+
+
+        <!-- Card 6 -->
+        <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+                <span class="timeline-emoji">🎉</span>
+                <div class="timeline-date">April 1, 2026</div>
+                <h3 class="timeline-title">The Day We Celebrated You</h3>
+                <div class="timeline-days-ago" data-date="2026-04-01">0 Days Ago</div>
+            </div>
+        </div>
+
+        <!-- Card 7 -->
+        <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+                <span class="timeline-emoji">❤️</span>
+                <div class="timeline-date">April 20, 2026</div>
+                <h3 class="timeline-title">A Quiet Little Memory</h3>
+                <div class="timeline-days-ago" data-date="2026-04-20">0 Days Ago</div>
+            </div>
+        </div>
+    </div>
+
+    <section class="ending-quote">
+<blockquote>
+"These memories are more than just dates on a timeline They are little pieces of my happiest days moments I'll carry with me forever And if there's one wish I have it's that this timeline never stops growing because every new memory with you becomes my new favorite"
+</blockquote>
+    </section>
+
+<footer>© 2026 My Favorite Place Will Always Be Beside You • maloktyy </footer>
+    <script>
+        // --- 1. Date Calculation Logic ---
+        function getDaysPassed(dateString) {
+            const start = new Date(dateString);
+            const today = new Date();
+            // Reset time part to accurately compare days
+            start.setHours(0, 0, 0, 0);
+            today.setHours(0, 0, 0, 0);
+            
+            const diffTime = today - start;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays > 0 ? diffDays : 0; // Return 0 if date is in the future
+        }
+
+        // --- 2. Counter Animation ---
+        function animateCounter(id, targetValue) {
+            const element = document.getElementById(id);
+            let startValue = 0;
+            let duration = 2000;
+            let stepTime = Math.abs(Math.floor(duration / targetValue));
+            
+            if (targetValue === 0) { element.innerHTML = "0"; return; }
+
+            let timer = setInterval(() => {
+                startValue += Math.ceil(targetValue / 100); 
+                if (startValue >= targetValue) {
+                    element.innerHTML = targetValue;
+                    clearInterval(timer);
+                } else {
+                    element.innerHTML = startValue;
+                }
+            }, 20);
+        }
+// وظيفة الحفاظ على الجلسة مفتوحة عند الرجوع لصفحة الزراير
+function setSession() {
+    sessionStorage.setItem('unlocked', 'true');
+}
+        // --- 3. Initialize Content ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set Relationship Counter
+            const relationshipStart = "2026-02-27";
+            const daysTogether = getDaysPassed(relationshipStart);
+            animateCounter('main-counter', daysTogether);
+
+            // Set Individual Timeline Days
+            document.querySelectorAll('.timeline-days-ago').forEach(badge => {
+                const date = badge.getAttribute('data-date');
+                const diff = getDaysPassed(date);
+                badge.innerHTML = `${diff} Days Ago`;
+            });
+
+            // Intersection Observer for scroll animations
+            const observerOptions = { threshold: 0.2 };
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.timeline-item').forEach(item => {
+                observer.observe(item);
+            });
+        });
+
+        // --- 4. Floating Particles (Original Project Style) ---
+        function createParticle() {
+            const p = document.createElement('div');
+            p.className = 'heart-particle';
+            p.innerHTML = '❤';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.fontSize = (Math.random() * 10 + 15) + 'px';
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 8000);
+        }
+        setInterval(createParticle, 1000);
+    </script>
+</body>
+</html>
